@@ -14,6 +14,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import dotenv from 'dotenv';
 import { Config } from './configs/environment.config';
 import authRoutes from './routes/auth.routes';
+import childRoutes from './routes/child.routes';
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ AppDataSource.initialize()
 
         router.use('/auth', authRoutes);
         router.use('/users', userRoutes);
+        router.use('/children', childRoutes);
         router.use('/parents', parentRoutes);
         router.use('/parent-child', parentChildRoutes);
 
