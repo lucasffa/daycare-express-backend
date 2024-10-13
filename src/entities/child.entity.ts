@@ -10,7 +10,7 @@ import { ParentChild } from './parent-child.entity';
 @Entity()
 export class Child {
   @PrimaryGeneratedColumn('uuid')
-  id: string = '';
+  id!: string;
 
   @Column()
   fullName: string = '';
