@@ -2,22 +2,38 @@
 import { Response, NextFunction, Request } from 'express';
 import { UserRole } from '../enums/roles.enum';
 import { AuthRequest } from '../interfaces/auth-request.interface';
+import jwt from 'jsonwebtoken';
+import { Config } from '../configs/environment.config';
 
 export function ensureRole(roles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const authRequest = req as unknown as AuthRequest;
+    const authHeader = req.headers.authorization;
 
-    const userRole = authRequest.user?.role;
-
-    if (!userRole) {
-      res.status(403).json({ message: 'Acesso negado. Nenhum papel de usuário encontrado.' });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ message: 'Acesso negado. Token ausente ou malformado.' });
       return;
     }
 
-    if (roles.includes(userRole)) {
-      return next();
-    }
+    const token = authHeader.split(' ')[1];
 
-    res.status(403).json({ message: 'Acesso negado.' });
+    try {
+      const decoded = jwt.verify(token, Config.getJwtSecret()) as AuthRequest['user'];
+
+      const userRole = decoded?.role;
+
+      console.log("userRole on ensureRole: ", userRole);
+
+      if (!userRole || !roles.includes(userRole)) {
+        res.status(403).json({ message: 'Acesso negado. Papel de usuário insuficiente.' });
+        return;
+      }
+
+      (req as unknown as AuthRequest).user = decoded;
+
+      next();
+    } catch (error) {
+      res.status(403).json({ message: 'Acesso negado. Token inválido ou expirado.' });
+      return;
+    }
   };
 }

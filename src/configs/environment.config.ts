@@ -70,4 +70,8 @@ export class Config {
         }
         return value;
     }
+
+    static isDevelopment(): boolean {
+        return process.env.NODE_ENV !== 'production';
+    }
 }

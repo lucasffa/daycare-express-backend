@@ -20,7 +20,10 @@ export class ParentChild {
   @ManyToOne(() => Child, (child) => child.parentChildren)
   child: Child = new Child();
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: GuardianshipType,
+  })
   guardianshipType: GuardianshipType = GuardianshipType.UNILATERAL;
 
   @Column()

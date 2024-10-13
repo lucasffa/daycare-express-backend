@@ -43,5 +43,5 @@ export class Parent {
   photo: string = '';
 
   @OneToMany(() => ParentChild, (parentChild) => parentChild.parent)
-  parentChildren: ParentChild[] = [];
+  parentChildren!: ParentChild[];
 }

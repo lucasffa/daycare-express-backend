@@ -9,7 +9,11 @@ import parentRoutes from './routes/parent.routes';
 import parentChildRoutes from './routes/parent-child.routes';
 import userRoutes from './routes/user.routes';
 import { apiLimiter } from './middlewares/rate-limiter.middleware';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 import dotenv from 'dotenv';
+import { Config } from './configs/environment.config';
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -24,10 +28,32 @@ AppDataSource.initialize()
         app.use(helmet());
         app.use(apiLimiter);
 
-        const apiUrl = process.env.API_URL || '/api/v1';
+        const apiUrl = Config.getApiUrl() || '/api/v1';
 
         const router = express.Router();
 
+        const swaggerOptions = {
+            definition: {
+                openapi: '3.0.0',
+                info: {
+                    title: 'Daycare Express API',
+                    version: '1.0.0',
+                    description: 'API para gerenciar creches',
+                },
+                servers: [
+                    {
+                        url: apiUrl || '/api/v1',
+                    },
+                ],
+            },
+            apis: ['./src/routes/*.ts'], // Arquivos onde estão definidas as rotas
+        };
+
+        // Inicializando o Swagger com o swagger-jsdoc
+        const swaggerDocs = swaggerJsdoc(swaggerOptions);
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+        router.use('/auth', authRoutes);
         router.use('/users', userRoutes);
         router.use('/parents', parentRoutes);
         router.use('/parent-child', parentChildRoutes);

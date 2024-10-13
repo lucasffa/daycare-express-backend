@@ -20,14 +20,17 @@ export class UserController {
 
         const errors = await validate(dto);
         if (errors.length > 0) {
-            return res.status(400).json(errors);
+            return res.status(400).json({ message: 'Validation failed', errors });
         }
 
         try {
             const user = await this.userService.create(dto);
             res.status(201).json({ message: 'User created successfully', data: user });
-        } catch (error) {
-            res.status(500).json({ message: 'Internal Server Error', error });
+        } catch (error: any) {
+            if (error.message.includes('Cannot assign ADMIN or STAFF role')) {
+                return res.status(403).json({ message: error.message });
+            }
+            res.status(500).json({ message: 'Internal Server Error', error: error.message });
         }
     }
 

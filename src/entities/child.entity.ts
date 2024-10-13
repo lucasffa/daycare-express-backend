@@ -34,5 +34,5 @@ export class Child {
   imageUsePermission: boolean = false;
 
   @OneToMany(() => ParentChild, (parentChild) => parentChild.child)
-  parentChildren: ParentChild[] = [];
+  parentChildren!: ParentChild[];
 }
