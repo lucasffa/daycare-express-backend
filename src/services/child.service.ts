@@ -13,7 +13,6 @@ export class ChildService {
   }
 
   async create(data: CreateChildDTO): Promise<ChildResponseDTO> {
-
     const formattedCpf = this.normalizeAndFormatCpf(data.cpf);
 
     if (!isValidCpf(formattedCpf)) {
