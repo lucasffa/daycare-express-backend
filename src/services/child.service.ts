@@ -11,8 +11,11 @@ export class ChildService {
   }
 
   async create(data: CreateChildDTO): Promise<Child> {
+
+    //Verificando se já existe uma criança com o CPF informado
+    const formattedCpf = this.normalizeAndFormatCpf(data.cpf);
     const existingChild = await this.childRepository.findOne({
-      where: { cpf: data.cpf },
+      where: { cpf: formattedCpf },
     });
 
     if (existingChild) {
@@ -48,13 +51,7 @@ export class ChildService {
     }
 
     if (cpf) {
-      // Normalizando o CPF removendo caracteres especiais e formata corretamente
-      const normalizedCpf = cpf.replace(/[\.\-]/g, "");
-      const formattedCpf = normalizedCpf.replace(
-        /(\d{3})(\d{3})(\d{3})(\d{2})/,
-        "$1.$2.$3-$4"
-      );
-      where.cpf = formattedCpf;
+      where.cpf = this.normalizeAndFormatCpf(cpf);
     }
 
     if (birthDate) {
@@ -65,5 +62,11 @@ export class ChildService {
     return children.length > 0
       ? plainToInstance(CreateChildDTO, children)
       : null;
+  }
+
+  //Normalizando o CPF para o formato XXX.XXX.XXX-XX
+  private normalizeAndFormatCpf(cpf: string): string {
+    const normalizedCpf = cpf.replace(/[\.\-]/g, "");
+    return normalizedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   }
 }

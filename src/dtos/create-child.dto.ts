@@ -13,18 +13,7 @@ export class CreateChildDTO {
 
   @IsString()
   @IsNotEmpty()
-  set cpf(value: string) {
-    // Formatando o CPF para o formato XXX.XXX.XXX-XX
-    const formattedCpf = value.replace(
-      /(\d{3})(\d{3})(\d{3})(\d{2})/,
-      "$1.$2.$3-$4"
-    );
-    this._cpf = formattedCpf;
-  }
-
-  get cpf(): string {
-    return this._cpf;
-  }
+  cpf!: string;
 
   @IsString()
   @IsNotEmpty()
