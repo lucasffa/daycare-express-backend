@@ -18,6 +18,9 @@ export class ParentService {
         return Promise.resolve(savedParent);
       })
       .catch((error) => {
+        if (error.code === '23505') {
+          return Promise.reject({ status: 409, message: 'CPF already exists' });
+        }
         return Promise.reject({ status: 500, message: 'Failed to save parent', error });
       });
   }

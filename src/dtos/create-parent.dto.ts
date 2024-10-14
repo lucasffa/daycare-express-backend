@@ -1,5 +1,6 @@
 // src/dtos/CreateParentDTO.ts
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsCpfValid } from '../validators/cpf.validator';
 
 export class CreateParentDTO {
   @IsString()
@@ -8,6 +9,7 @@ export class CreateParentDTO {
 
   @IsString()
   @IsNotEmpty()
+  @IsCpfValid()
   cpf!: string;
 
   @IsString()

@@ -66,6 +66,8 @@ const parentController = new ParentController(parentService);
  *         description: Pai ou responsável criado com sucesso
  *       400:
  *         description: Requisição inválida
+ *       409:
+ *         description: Conflito com objeto pré-registrado ou pré-existente
  */
 
 parentRoutes.post(
