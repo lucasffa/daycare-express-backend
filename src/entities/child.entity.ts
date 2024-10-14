@@ -4,6 +4,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { ParentChild } from './parent-child.entity';
 
@@ -12,7 +14,9 @@ export class Child {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({
+    collation: 'en_US.utf8'
+  })
   fullName: string = '';
 
   @Column()
@@ -21,7 +25,9 @@ export class Child {
   @Column({ unique: true })
   cpf: string = '';
 
-  @Column()
+  @Column({
+    collation: 'en_US.utf8'
+  })
   address: string = '';
 
   @Column()
@@ -35,4 +41,10 @@ export class Child {
 
   @OneToMany(() => ParentChild, (parentChild) => parentChild.child)
   parentChildren!: ParentChild[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  normalizeName() {
+    this.fullName = this.fullName.trim();
+  }
 }

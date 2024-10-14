@@ -4,15 +4,20 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { ParentChild } from './parent-child.entity';
+import { removeAccents } from '../utils/chars.util';
 
 @Entity()
 export class Parent {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({
+    collation: 'en_US.utf8'
+  })
   fullName: string = '';
 
   @Column({ unique: true })
@@ -21,7 +26,9 @@ export class Parent {
   @Column()
   rg: string = '';
 
-  @Column()
+  @Column({
+    collation: 'en_US.utf8'
+  })
   address: string = '';
 
   @Column()
@@ -30,10 +37,14 @@ export class Parent {
   @Column({ nullable: true })
   secondaryPhone: string = '';
 
-  @Column()
+  @Column({
+    collation: 'en_US.utf8'
+  })
   profession: string = '';
 
-  @Column()
+  @Column({
+    collation: 'en_US.utf8'
+  })
   workplace: string = '';
 
   @Column()
@@ -44,4 +55,10 @@ export class Parent {
 
   @OneToMany(() => ParentChild, (parentChild) => parentChild.parent)
   parentChildren!: ParentChild[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  normalizeName() {
+    this.fullName = this.fullName.trim();
+  }
 }

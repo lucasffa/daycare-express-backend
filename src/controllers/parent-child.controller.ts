@@ -36,6 +36,8 @@ export class ParentChildController {
   async find(req: Request, res: Response): Promise<void> {
     const { cpf, parentName } = req.query;
 
+    console.log("parentName on find on parentchildcontroller: ", parentName);
+
     if (cpf) {
       const dto = new CpfSearchDTO();
       dto.cpf = cpf as string;

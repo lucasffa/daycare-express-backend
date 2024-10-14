@@ -1,11 +1,15 @@
 // src/services/ParentChildService.ts
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { ParentChild } from '../entities/parent-child.entity';
 import { CreateParentChildDTO } from '../dtos/create-parent-child.dto';
 import { Parent } from '../entities/parent.entity';
 import { Child } from '../entities/child.entity';
 import { ParentChildResponseDTO } from '../dtos/parent-child-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { removeAccents } from '../utils/chars.util';
+import { ParentChildRelationsResponseDTO } from '../dtos/parent-child-relations-response.dto';
+import { ParentResponseDTO } from '../dtos/parent-response.dto';
+import { ChildResponseDTO } from '../dtos/child-response.dto';
 
 export class ParentChildService {
   private parentChildRepository: Repository<ParentChild>;
@@ -79,18 +83,29 @@ export class ParentChildService {
     return plainToInstance(ParentChildResponseDTO, parentChildRelations);
   }
 
-  async findByParentName(name: string): Promise<ParentChildResponseDTO[]> {
-    const parent = await this.parentRepository.findOne({ where: { fullName: ILike(`%${name}%`) } });
+  async findByParentName(name: string): Promise<ParentChildRelationsResponseDTO[]> {
+    const parents = await this.parentRepository.find({ where: { fullName: ILike(`%${name}%`) } });
 
-    if (!parent) {
-      return Promise.reject({ status: 404, message: 'Parent not found with the given name' });
+    if (parents.length === 0) {
+        return Promise.reject({ status: 404, message: 'No parents found with the given name' });
     }
 
+    const parentIds = parents.map(parent => parent.id);
+
     const parentChildRelations = await this.parentChildRepository.find({
-      where: { parent },
-      relations: ['parent', 'child'],
+        where: { parent: In(parentIds) },
+        relations: ['parent', 'child'],
     });
 
-    return plainToInstance(ParentChildResponseDTO, parentChildRelations);
-  }
+    return parentChildRelations.map((relation) => {
+        return plainToInstance(ParentChildRelationsResponseDTO, {
+            parent: plainToInstance(ParentResponseDTO, relation.parent),
+            child: plainToInstance(ChildResponseDTO, relation.child),
+            guardianshipType: relation.guardianshipType,
+            kinshipDegree: relation.kinshipDegree,
+            additionalInfo: relation.additionalInfo,
+            isAuthorizedToPickup: relation.isAuthorizedToPickup,
+        });
+    });
+}
 }
