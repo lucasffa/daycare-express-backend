@@ -8,7 +8,7 @@ import { Config } from '../configs/environment.config';
 export function ensureRole(roles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ message: 'Acesso negado. Token ausente ou malformado.' });
       return;
@@ -20,8 +20,6 @@ export function ensureRole(roles: UserRole[]) {
       const decoded = jwt.verify(token, Config.getJwtSecret()) as AuthRequest['user'];
 
       const userRole = decoded?.role;
-
-      console.log("userRole on ensureRole: ", userRole);
 
       if (!userRole || !roles.includes(userRole)) {
         res.status(403).json({ message: 'Acesso negado. Papel de usuário insuficiente.' });

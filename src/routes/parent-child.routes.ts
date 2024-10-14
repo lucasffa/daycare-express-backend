@@ -17,7 +17,7 @@ const parentRepository = AppDataSource.getRepository(Parent);
 const childRepository = AppDataSource.getRepository(Child);
 
 const parentChildService = new ParentChildService(parentChildRepository, parentRepository, childRepository);
-const parentController = new ParentChildController(parentChildService);
+const parentChildController = new ParentChildController(parentChildService);
 
 /**
  * @swagger
@@ -64,7 +64,45 @@ parentChildRoutes.post(
     '/',
     apiLimiter,
     ensureRole([UserRole.ADMIN, UserRole.STAFF]),
-    (req, res) => parentController.create(req, res)
+    (req, res) => parentChildController.create(req, res)
 );
+
+
+/**
+ * @swagger
+ * /parent-child/search:
+ *   get:
+ *     summary: Busca a guarda de um pai ou criança usando CPF ou nome do pai
+ *     tags:
+ *       - Guarda Pai-Filho
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: cpf
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: CPF do pai ou da criança no formato XXX.XXX.XXX-XX
+ *       - in: query
+ *         name: parentName
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Nome do pai (mínimo de 5 caracteres)
+ *     responses:
+ *       200:
+ *         description: Lista de guardas encontradas
+ *       400:
+ *         description: Requisição inválida
+ *       404:
+ *         description: Nenhum registro encontrado para o CPF ou nome fornecido
+ */
+parentChildRoutes.get(
+    '/search',
+    apiLimiter,
+    ensureRole([UserRole.ADMIN, UserRole.STAFF]),
+    (req, res) => parentChildController.find(req, res)
+  );
 
 export default parentChildRoutes;

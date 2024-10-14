@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import { ParentChildService } from '../services/parent-child.service';
 import { CreateParentChildDTO } from '../dtos/create-parent-child.dto';
 import { validate } from 'class-validator';
+import { CpfSearchDTO } from '../dtos/cpf-search.dto';
+import { NameSearchDTO } from '../dtos/name-search.dto';
 
 export class ParentChildController {
   private parentChildService: ParentChildService;
@@ -11,29 +13,69 @@ export class ParentChildController {
     this.parentChildService = parentChildService;
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response): Promise<void> {
     const data = req.body;
 
     const dto = new CreateParentChildDTO();
     Object.assign(dto, data);
 
-    validate(dto)
-      .then((errors) => {
-        if (errors.length > 0) {
-          return Promise.reject({ status: 400, message: errors });
-        } else {
-          return this.parentChildService.create(dto);
-        }
-      })
-      .then((parentChild) => {
-        res.status(201).json({ message: 'Parent-Child relationship created successfully', data: parentChild });
-      })
-      .catch((error) => {
-        if (error.status) {
-          res.status(error.status).json({ message: error.message });
-        } else {
-          res.status(500).json({ message: 'Internal Server Error', error });
-        }
-      });
+    try {
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        res.status(400).json({ message: errors });
+        return;
+      }
+
+      const parentChild = await this.parentChildService.create(dto);
+      res.status(201).json({ message: 'Parent-Child relationship created successfully', data: parentChild });
+    } catch (error: any) {
+      res.status(error.status || 500).json({ message: error.message || 'Internal Server Error' });
+    }
+  }
+
+  async find(req: Request, res: Response): Promise<void> {
+    const { cpf, parentName } = req.query;
+
+    if (cpf) {
+      const dto = new CpfSearchDTO();
+      dto.cpf = cpf as string;
+
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        res.status(400).json({ message: 'Invalid CPF format', errors });
+        return;
+      }
+
+      try {
+        const result = await this.parentChildService.findByCpf(dto.cpf);
+        res.status(200).json(result);
+        return;
+      } catch (error: any) {
+        res.status(error.status || 500).json({ message: error.message || 'Internal Server Error' });
+        return;
+      }
+    }
+
+    if (parentName) {
+      const dto = new NameSearchDTO();
+      dto.parentName = parentName as string;
+
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        res.status(400).json({ message: 'Invalid name format', errors });
+        return;
+      }
+
+      try {
+        const result = await this.parentChildService.findByParentName(dto.parentName);
+        res.status(200).json(result);
+        return;
+      } catch (error: any) {
+        res.status(error.status || 500).json({ message: error.message || 'Internal Server Error' });
+        return;
+      }
+    }
+
+    res.status(400).json({ message: 'You must provide either a CPF or a parent name' });
   }
 }
