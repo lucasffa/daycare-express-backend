@@ -12,7 +12,7 @@ import { GuardianshipType } from '../enums/guardianship-type.enum';
 @Entity()
 export class ParentChild {
   @PrimaryGeneratedColumn('uuid')
-  id: string = '';
+  id!: string;
 
   @ManyToOne(() => Parent, (parent) => parent.parentChildren)
   parent: Parent = new Parent();

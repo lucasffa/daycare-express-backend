@@ -7,11 +7,16 @@ import { ParentChild } from '../entities/parent-child.entity';
 import { apiLimiter } from '../middlewares/rate-limiter.middleware';
 import { ensureRole } from '../middlewares/ensure-roles.middleware';
 import { UserRole } from '../enums/roles.enum';
+import { Parent } from '../entities/parent.entity';
+import { Child } from '../entities/child.entity';
 
 const parentChildRoutes = Router();
 
 const parentChildRepository = AppDataSource.getRepository(ParentChild);
-const parentChildService = new ParentChildService(parentChildRepository);
+const parentRepository = AppDataSource.getRepository(Parent);
+const childRepository = AppDataSource.getRepository(Child);
+
+const parentChildService = new ParentChildService(parentChildRepository, parentRepository, childRepository);
 const parentController = new ParentChildController(parentChildService);
 
 /**

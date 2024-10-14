@@ -22,6 +22,8 @@ const parentController = new ParentController(parentService);
  *     summary: Cria um novo cadastro de pais ou responsáveis
  *     tags:
  *       - Pais
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
