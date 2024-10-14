@@ -21,6 +21,8 @@ const parentController = new ParentChildController(parentChildService);
  *     summary: Cria uma guarda de Pai-Filho
  *     tags:
  *       - Guarda Pai-Filho
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:

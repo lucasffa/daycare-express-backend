@@ -20,6 +20,8 @@ const childController = new ChildController(childService);
  *     summary: Cria um novo cadastro de criança
  *     tags:
  *       - Crianças
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
