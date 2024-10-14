@@ -22,11 +22,8 @@ export class ParentChildService {
 
   async create(data: CreateParentChildDTO): Promise<ParentChild> {
     try {
-      console.log("Executou aqui!");
       const parent = await this.parentRepository.findOne({ where: { id: data.parentId } });
-      console.log("Executou parent: ", parent);
       const child = await this.childRepository.findOne({ where: { id: data.childId } });
-      console.log("Executou child: ", child);
 
       if (!parent) {
         return Promise.reject({ status: 404, message: 'Parent not found' });
