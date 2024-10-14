@@ -2,6 +2,7 @@ import { Repository, ILike } from "typeorm";
 import { Child } from "../entities/child.entity";
 import { CreateChildDTO } from "../dtos/create-child.dto";
 import { plainToInstance } from "class-transformer";
+import { isValidCpf } from "../utils/cpf.util";
 
 export class ChildService {
   private childRepository: Repository<Child>;
@@ -12,8 +13,12 @@ export class ChildService {
 
   async create(data: CreateChildDTO): Promise<Child> {
 
-    //Verificando se já existe uma criança com o CPF informado
     const formattedCpf = this.normalizeAndFormatCpf(data.cpf);
+
+    if (!isValidCpf(formattedCpf)) {
+      return Promise.reject({ status: 400, message: "Invalid CPF" });
+    }
+
     const existingChild = await this.childRepository.findOne({
       where: { cpf: formattedCpf },
     });
@@ -46,7 +51,6 @@ export class ChildService {
     const where: any = {};
 
     if (name) {
-      //Usando o ILike para deixar a busca case-insensitive no banco
       where.fullName = ILike(`%${name}%`);
     }
 
@@ -64,7 +68,6 @@ export class ChildService {
       : null;
   }
 
-  //Normalizando o CPF para o formato XXX.XXX.XXX-XX
   private normalizeAndFormatCpf(cpf: string): string {
     const normalizedCpf = cpf.replace(/[\.\-]/g, "");
     return normalizedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
