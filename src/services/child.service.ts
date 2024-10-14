@@ -3,6 +3,7 @@ import { Child } from "../entities/child.entity";
 import { CreateChildDTO } from "../dtos/create-child.dto";
 import { plainToInstance } from "class-transformer";
 import { isValidCpf } from "../utils/cpf.util";
+import { ChildResponseDTO } from "../dtos/child-response.dto";
 
 export class ChildService {
   private childRepository: Repository<Child>;
@@ -11,7 +12,7 @@ export class ChildService {
     this.childRepository = childRepository;
   }
 
-  async create(data: CreateChildDTO): Promise<Child> {
+  async create(data: CreateChildDTO): Promise<ChildResponseDTO> {
 
     const formattedCpf = this.normalizeAndFormatCpf(data.cpf);
 
@@ -32,7 +33,7 @@ export class ChildService {
     return this.childRepository
       .save(child)
       .then((savedChild) => {
-        return Promise.resolve(savedChild);
+        return Promise.resolve(plainToInstance(ChildResponseDTO, savedChild));
       })
       .catch((error) => {
         return Promise.reject({
@@ -47,7 +48,7 @@ export class ChildService {
     name?: string,
     cpf?: string,
     birthDate?: string
-  ): Promise<CreateChildDTO[] | null> {
+  ): Promise<ChildResponseDTO[] | null> {
     const where: any = {};
 
     if (name) {
@@ -64,7 +65,7 @@ export class ChildService {
 
     const children = await this.childRepository.find({ where });
     return children.length > 0
-      ? plainToInstance(CreateChildDTO, children)
+      ? plainToInstance(ChildResponseDTO, children)
       : null;
   }
 
