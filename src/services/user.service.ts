@@ -6,12 +6,29 @@ import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UpdateUserDTO } from '../dtos/update-user.dto';
 import { UserRole } from '../enums/roles.enum';
 import { UserResponseDTO } from '../dtos/user-response.dto';
+import { Parent } from '../entities/parent.entity';
+import { ServiceProvider } from '../entities/service-provider.entity';
+
 
 export class UserService {
     private userRepository: Repository<User>;
+    private parentRepository: Repository<Parent>;
+    // private relativeRepository: Repository<Relative>;
+    private serviceProviderRepository: Repository<ServiceProvider>;
+    // private accountantRepository: Repository<Accountant>;
 
-    constructor(userRepository: Repository<User>) {
+    constructor(
+        userRepository: Repository<User>,
+        parentRepository: Repository<Parent>,
+        // relativeRepository: Repository<Relative>,
+        serviceProviderRepository: Repository<ServiceProvider>,
+        // accountantRepository: Repository<Accountant>
+    ) {
         this.userRepository = userRepository;
+        this.parentRepository = parentRepository;
+        // this.relativeRepository = relativeRepository;
+        this.serviceProviderRepository = serviceProviderRepository;
+        // this.accountantRepository = accountantRepository;
     }
 
     async create(data: CreateUserDTO): Promise<UserResponseDTO> {
@@ -21,15 +38,60 @@ export class UserService {
 
         const user = this.userRepository.create({
             username: data.username,
+            name: data.name,
             email: data.email,
             password: data.password,
-            role: data.role,
+            role: UserRole.NOT_DEFINED,
         });
 
         await user.hashPassword();
 
         const savedUser = await this.userRepository.save(user);
         return plainToClass(UserResponseDTO, savedUser);
+    }
+
+    async updateRole(userId: string, newRole: UserRole, entityId?: string): Promise<UserResponseDTO> {
+        const user = await this.findOneEntity(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (![UserRole.PARENT, UserRole.RELATIVE, UserRole.SERVICE_PROVIDER, UserRole.ACCOUNTANT].includes(newRole)) {
+            throw new Error('Invalid role for assignment');
+        }
+
+        user.parent = undefined;
+        //user.relative = null;
+        user.serviceProvider = undefined;
+        //user.accountant = null;
+
+        if (!entityId) throw new Error('Entity ID is required for this role');
+
+        if (newRole === UserRole.PARENT) {
+            const parent = await this.parentRepository.findOne({ where: { id: entityId } });
+            if (!parent) throw new Error('Parent entity not found');
+            user.parent = parent;
+        } else if (newRole === UserRole.RELATIVE) {
+            /*
+            const relative = await this.relativeRepository.findOne({ where: { id: entityId } });
+            if (!relative) throw new Error('Relative entity not found');
+            user.relative = relative;
+            */
+        } else if (newRole === UserRole.SERVICE_PROVIDER) {
+            const serviceProvider = await this.serviceProviderRepository.findOne({ where: { id: entityId } });
+            if (!serviceProvider) throw new Error('Service provider entity not found');
+            user.serviceProvider = serviceProvider;
+        } else if (newRole === UserRole.ACCOUNTANT) {
+            /*
+            const accountant = await this.accountantRepository.findOne({ where: { id: entityId } });
+            if (!accountant) throw new Error('Accountant entity not found');
+            user.accountant = accountant;
+            */
+        }
+
+        user.role = newRole;
+        const updatedUser = await this.userRepository.save(user);
+        return plainToClass(UserResponseDTO, updatedUser);
     }
 
     async findAll(): Promise<UserResponseDTO[]> {

@@ -7,11 +7,20 @@ import { User } from '../entities/user.entity';
 import { apiLimiter } from '../middlewares/rate-limiter.middleware';
 import { ensureRole } from '../middlewares/ensure-roles.middleware';
 import { UserRole } from '../enums/roles.enum';
+import { ServiceProvider } from '../entities/service-provider.entity';
+import { Parent } from '../entities/parent.entity';
 
 const userRoutes = Router();
 
 const userRepository = AppDataSource.getRepository(User);
-const userService = new UserService(userRepository);
+const parentRepository = AppDataSource.getRepository(Parent);
+const serviceProviderRepository = AppDataSource.getRepository(ServiceProvider);
+
+const userService = new UserService(
+  userRepository,
+  parentRepository,
+  serviceProviderRepository
+);
 const userController = new UserController(userService);
 
 /**
@@ -40,10 +49,6 @@ const userController = new UserController(userService);
  *               password:
  *                 type: string
  *                 example: "Password123!"
- *               role:
- *                 type: string
- *                 enum: [ADMIN, STAFF, PARENT, RELATIVE]
- *                 example: "PARENT"
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
@@ -55,6 +60,53 @@ userRoutes.post(
   apiLimiter,
   (req, res) => {
     userController.create(req, res);
+  }
+);
+
+/**
+ * @swagger
+ * /users/{id}/update-role:
+ *   patch:
+ *     summary: Atualiza a role de um usuário específico
+ *     tags:
+ *       - Usuários
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [PARENT, RELATIVE, SERVICE_PROVIDER]
+ *                 description: Nova role do usuário
+ *               entityId:
+ *                 type: string
+ *                 description: ID da entidade associada (Parent, Relative, ou ServiceProvider), quando aplicável
+ *     responses:
+ *       200:
+ *         description: Role do usuário atualizada com sucesso
+ *       400:
+ *         description: Requisição inválida
+ *       404:
+ *         description: Usuário ou entidade não encontrados
+ */
+userRoutes.patch(
+  '/:id/update-role',
+  apiLimiter,
+  ensureRole([UserRole.ADMIN]),
+  (req, res) => {
+    userController.updateRole(req, res);
   }
 );
 

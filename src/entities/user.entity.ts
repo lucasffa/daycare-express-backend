@@ -6,9 +6,13 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    OneToOne,
+    JoinColumn,
 } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { UserRole } from '../enums/roles.enum';
+import { Parent } from './parent.entity';
+import { ServiceProvider } from './service-provider.entity';
 
 @Entity()
 export class User {
@@ -28,7 +32,21 @@ export class User {
     password: string = '';
 
     @Column({ type: 'enum', enum: UserRole })
-    role: UserRole = UserRole.PARENT;
+    role: UserRole = UserRole.NOT_DEFINED;
+
+    @OneToOne(() => Parent, { nullable: true })
+    @JoinColumn()
+    parent?: Parent;
+
+    @OneToOne(() => ServiceProvider, { nullable: true })
+    @JoinColumn()
+    serviceProvider?: ServiceProvider;
+
+    /*
+    @OneToOne(() => Accountant, { nullable: true })
+    @JoinColumn()
+    accountant?: Accountant;
+    */
 
     @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date = new Date();
