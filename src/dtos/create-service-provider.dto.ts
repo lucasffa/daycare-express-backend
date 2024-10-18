@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsCpfValid } from '../validators/cpf.validator';
 
 export class CreateServiceProviderDTO {
   @IsNotEmpty()
@@ -9,10 +10,9 @@ export class CreateServiceProviderDTO {
   @Type(() => Date)
   birthDate!: Date;
 
-  private _cpf!: string;
-
   @IsString()
   @IsNotEmpty()
+  @IsCpfValid()
   cpf!: string;
 
   @IsString()
