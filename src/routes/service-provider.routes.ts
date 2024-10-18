@@ -89,3 +89,5 @@ serviceProviderRoutes.post(
   ensureRole([UserRole.ADMIN, UserRole.STAFF]),
   (req, res) => serviceProviderController.create(req, res)
 );
+
+export default serviceProviderRoutes;
