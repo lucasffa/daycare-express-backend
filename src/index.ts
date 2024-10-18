@@ -15,6 +15,7 @@ import dotenv from 'dotenv';
 import { Config } from './configs/environment.config';
 import authRoutes from './routes/auth.routes';
 import childRoutes from './routes/child.routes';
+import counterRoutes from './routes/accountant.routes';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ AppDataSource.initialize()
         router.use('/children', childRoutes);
         router.use('/parents', parentRoutes);
         router.use('/parent-child', parentChildRoutes);
+        router.use('/accountant', counterRoutes);
 
         app.use(apiUrl, router);
 
