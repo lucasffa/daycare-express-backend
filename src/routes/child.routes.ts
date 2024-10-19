@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import { ChildController } from "../controllers/child.controller";
 import { ChildService } from "../services/child.service";
 import { AppDataSource } from "../db/data-source.db";
@@ -12,6 +13,9 @@ const childRoutes = Router();
 const childRepository = AppDataSource.getRepository(Child);
 const childService = new ChildService(childRepository);
 const childController = new ChildController(childService);
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 /**
  * @swagger
@@ -62,6 +66,45 @@ childRoutes.post(
   apiLimiter,
   ensureRole([UserRole.ADMIN, UserRole.STAFF]),
   (req, res) => childController.create(req, res)
+);
+
+/**
+ * @swagger
+ * /children/csv:
+ *   post:
+ *     summary: Cria cadastros de crianças atráves de um arquivo CSV
+ *     tags:
+ *       - Crianças
+ *       - Cadastro
+ *       - CSV
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Arquivo CSV contendo as informações das crianças
+
+ *     responses:
+ *       201:
+ *         description: Crianças criadas com sucesso
+ *       400:
+ *         description: Requisição inválida
+ *       500:
+ *         description: Erro interno do servidor
+ */
+
+childRoutes.post(
+  '/csv',
+  apiLimiter,
+  upload.single('file'),
+  (req, res) => childController.createFromCSV(req, res),
 );
 
 /**

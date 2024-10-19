@@ -1,7 +1,23 @@
+import Papa from "papaparse";
 import { Request, Response } from "express";
-import { validate } from "class-validator";
+import { validate, ValidationError } from "class-validator";
 import { ChildService } from "../services/child.service";
 import { CreateChildDTO } from "../dtos/create-child.dto";
+
+type Child = {
+  fullName: string,
+  birthDate: string,
+  cpf: string,
+  address: string,
+  medicalInfo: string,
+  photo: string,
+  imageUsePermission: boolean,
+};
+
+type ServiceError = {
+  status: number,
+  message: string,
+}
 
 export class ChildController {
   private childService: ChildService;
@@ -56,5 +72,63 @@ export class ChildController {
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error", error });
     }
+  }
+
+  async createFromCSV(req: Request, res: Response) {
+    const csvString = req.file?.buffer.toString();
+
+    if (!csvString) {
+      res.status(400).json({ message: "Missing CSV file" });
+      return;
+    }
+
+    const csv = Papa.parse<Child>(csvString, {
+      header: true,
+      skipEmptyLines: true,
+    });
+
+    const children = csv.data.map((child) => Object.assign(new CreateChildDTO(), child));
+    const errors = await this.validateDTOs(children);
+
+    if (errors) {
+      res.status(400).json({ message: errors });
+      return;
+    }
+
+    try {
+      const promises = children.map((child) => this.childService.create(child));
+
+      await Promise.all(promises);
+
+      res.status(201).json({ data: children });
+    } catch (error) {
+      if (this._isServiceError(error)) {
+        res.status(error.status).json({ message: error.message });
+        return;
+      }
+
+      res.status(500).json({ message: "Internal Server Error", error });
+    }
+  }
+
+  private validateDTOs(dtos: CreateChildDTO[]): Promise<ValidationError[] | null> {
+    return new Promise(async (resolve) => {
+      const promises = dtos.map((dto) => {
+        return validate(dto)
+          .then((errors) => {
+            if (errors.length) {
+              resolve(errors);
+            }
+          });
+      });
+
+      await Promise.all(promises);
+
+      resolve(null);
+    });
+  }
+
+  _isServiceError(error: any): error is ServiceError {
+    return error && typeof error.status === "number" && typeof error.message === "string";
   }
 }
