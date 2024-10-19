@@ -49,7 +49,7 @@ export class ParentChildController {
       }
 
       try {
-        const result = await this.parentChildService.findByCpf(dto.cpf);
+        const result = await this.parentChildService.findByCpf(dto.cpf, req.user.role);
         res.status(200).json(result);
         return;
       } catch (error: any) {
@@ -69,7 +69,7 @@ export class ParentChildController {
       }
 
       try {
-        const result = await this.parentChildService.findByParentName(dto.parentName);
+        const result = await this.parentChildService.findByParentName(dto.parentName, req.user.role);
         res.status(200).json(result);
         return;
       } catch (error: any) {

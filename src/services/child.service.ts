@@ -4,6 +4,7 @@ import { CreateChildDTO } from "../dtos/create-child.dto";
 import { plainToInstance } from "class-transformer";
 import { isValidCpf } from "../utils/cpf.util";
 import { ChildResponseDTO } from "../dtos/child-response.dto";
+import { UserRole } from "../enums/roles.enum";
 
 export class ChildService {
   private childRepository: Repository<Child>;
@@ -46,7 +47,8 @@ export class ChildService {
   async searchChildren(
     name?: string,
     cpf?: string,
-    birthDate?: string
+    birthDate?: string,
+    userRole?: UserRole
   ): Promise<ChildResponseDTO[] | null> {
     const where: any = {};
 
@@ -63,6 +65,14 @@ export class ChildService {
     }
 
     const children = await this.childRepository.find({ where });
+
+    if (userRole === UserRole.ACCOUNTANT) {
+      children.forEach((child) => {
+        child.cpf = "***********";
+        child.address = "***********";
+      });
+    }
+
     return children.length > 0
       ? plainToInstance(ChildResponseDTO, children)
       : null;

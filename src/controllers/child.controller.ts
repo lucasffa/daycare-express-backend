@@ -61,7 +61,8 @@ export class ChildController {
       const children = await this.childService.searchChildren(
         name as string,
         cpf as string,
-        birthDate as string
+        birthDate as string,
+        req.user.role
       );
 
       if (children && children.length > 0) {
