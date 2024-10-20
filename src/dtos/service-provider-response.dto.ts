@@ -18,4 +18,7 @@ export class ServiceProvidersResponseDTO {
 
   @Exclude()
   photo?: string;
+
+  @Expose()
+  terminationMessage?: string;
 }

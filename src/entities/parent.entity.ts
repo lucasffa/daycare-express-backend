@@ -50,6 +50,9 @@ export class Parent {
   @Column()
   email: string = '';
 
+  @Column({ default: false })
+  financialResponsible: boolean = false;
+
   @Column({ nullable: true })
   photo: string = '';
 

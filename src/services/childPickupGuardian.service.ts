@@ -4,6 +4,8 @@ import { CreateChildPickupGuardianDTO } from "../dtos/create-childPickupGuardian
 import { isValidCpf } from "../utils/cpf.util";
 import { normalizeAndFormatCpf } from "../utils/normalizeAndFormatCpf.util";
 import { Child } from "../entities/child.entity";
+import { ChildPickupGuardianDTO } from "../dtos/childPickupGuardian.dto";
+import { plainToInstance } from "class-transformer";
 
 export class ChildPickupGuardianService {
   private childPickupGuardianRepository: Repository<ChildPickupGuardian>;
@@ -19,7 +21,7 @@ export class ChildPickupGuardianService {
 
   async create(
     data: CreateChildPickupGuardianDTO
-  ): Promise<ChildPickupGuardian> {
+  ): Promise<ChildPickupGuardianDTO> {
     try {
       const formattedCpf = normalizeAndFormatCpf(data.cpf);
       const child = await this.childRepository.findOne({
@@ -43,7 +45,9 @@ export class ChildPickupGuardianService {
       return this.childPickupGuardianRepository
         .save(childPickupGuardian)
         .then((savedChildPickupGuardian) => {
-          return Promise.resolve(savedChildPickupGuardian);
+          return Promise.resolve(
+            plainToInstance(ChildPickupGuardianDTO, savedChildPickupGuardian)
+          );
         })
         .catch((error) => {
           return Promise.reject({
@@ -62,7 +66,7 @@ export class ChildPickupGuardianService {
     }
   }
 
-  async RemoveAuthorization(id: string): Promise<ChildPickupGuardian> {
+  async RemoveAuthorization(id: string): Promise<ChildPickupGuardianDTO> {
     try {
       const childPickupGuardian =
         await this.childPickupGuardianRepository.findOne({ where: { id } });
@@ -76,7 +80,21 @@ export class ChildPickupGuardianService {
 
       childPickupGuardian.isAuthorizedToPickup = false;
 
-      return this.childPickupGuardianRepository.save(childPickupGuardian);
+      return this.childPickupGuardianRepository
+        .save(childPickupGuardian)
+        .then((savedChildPickupGuardian) => {
+          return Promise.resolve(
+            plainToInstance(ChildPickupGuardianDTO, savedChildPickupGuardian)
+          );
+        })
+        .catch((error) => {
+          console.error("Error to find a child pickup guardian: ", error);
+          return Promise.reject({
+            status: 500,
+            message: "Failed to fetch child pickup guardian",
+            error,
+          });
+        });
     } catch (error) {
       console.error("Error to find a child pickup guardian: ", error);
       return Promise.reject({
@@ -86,6 +104,4 @@ export class ChildPickupGuardianService {
       });
     }
   }
-
-  
 }

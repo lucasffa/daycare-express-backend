@@ -42,4 +42,7 @@ export class CreateParentDTO {
   @IsString()
   @IsOptional()
   photo?: string;
+
+  @IsOptional()
+  financialResponsible?: boolean;
 }

@@ -17,6 +17,7 @@ import authRoutes from "./routes/auth.routes";
 import childRoutes from "./routes/child.routes";
 import counterRoutes from "./routes/accountant.routes";
 import childPickupGuardianRoutes from "./routes/childPickupGuardian.routes";
+import serviceProviderRoutes from "./routes/service-provider.routes";
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ AppDataSource.initialize()
     router.use("/parent-child", parentChildRoutes);
     router.use("/accountant", counterRoutes);
     router.use("/child-pickup-guardians", childPickupGuardianRoutes);
+    router.use("/service-providers", serviceProviderRoutes);
 
     app.use(apiUrl, router);
 

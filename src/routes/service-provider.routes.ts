@@ -90,4 +90,44 @@ serviceProviderRoutes.post(
   (req, res) => serviceProviderController.create(req, res)
 );
 
+/**
+ * @swagger
+ * /service-providers/{id}/termination:
+ *   post:
+ *     summary: Desativa um prestador de serviço
+ *     tags:
+ *       - Prestadores de Serviço
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do prestador de serviço
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               terminationMessage:
+ *                 type: string
+ *                 example: "Desativado por não cumprimento de contrato"
+ *     responses:
+ *       200:
+ *         description: Prestador de serviço desativado com sucesso
+ *       404:
+ *         description: Prestador de serviço não encontrado
+ */
+
+serviceProviderRoutes.post(
+  '/:id/termination',
+  apiLimiter,
+  ensureRole([UserRole.ADMIN, UserRole.STAFF]),
+  (req, res) => serviceProviderController.providerTermination(req, res)
+);
+
 export default serviceProviderRoutes;

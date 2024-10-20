@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
 
-export class CreateChildPickupGuardianDTO {
+export class ChildPickupGuardianDTO {
   @IsString()
   @IsNotEmpty()
   fullName!: string;
@@ -27,4 +27,8 @@ export class CreateChildPickupGuardianDTO {
 
   @IsNotEmpty()
   childId!: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  financialResponsible!: boolean;
 }

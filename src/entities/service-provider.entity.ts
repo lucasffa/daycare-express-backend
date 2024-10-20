@@ -57,6 +57,12 @@ export class ServiceProvider {
   @Column()
   coursesCompleted: string = '';
 
+  @Column({ default: true })
+  isActive: boolean = true;
+
+  @Column({ nullable: true })
+  terminationMessage: string = '';
+
   @BeforeInsert()
   @BeforeUpdate()
   normalizeName() {

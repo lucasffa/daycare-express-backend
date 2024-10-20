@@ -51,4 +51,37 @@ export class ServiceProviderService {
         });
       });
   }
+
+  async providerTermination(
+    id: string,
+    terminationMessage: string
+  ): Promise<ServiceProvidersResponseDTO> {
+    try {
+      const serviceProvider = await this.serviceProviderRepository.findOne({
+        where: { id },
+      });
+
+      if (!serviceProvider) {
+        return Promise.reject({
+          status: 404,
+          message: "Service provider not found",
+        });
+      }
+
+      serviceProvider.isActive = false;
+      serviceProvider.terminationMessage = terminationMessage;
+
+      const savedServiceProvider = await this.serviceProviderRepository.save(
+        serviceProvider
+      );
+      return plainToInstance(ServiceProvidersResponseDTO, savedServiceProvider);
+    } catch (error) {
+      console.error("Error to terminate service provider: ", error);
+      return Promise.reject({
+        status: 500,
+        message: "Failed to terminate service provider",
+        error,
+      });
+    }
+  }
 }
