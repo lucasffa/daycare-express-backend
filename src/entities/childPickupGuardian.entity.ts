@@ -27,7 +27,10 @@ export class ChildPickupGuardian {
 
   @Column()
   phone: string = "";
-  
+
+  @Column({ type: "time" })
+  hourToPickup: string = "00:00";
+
   @Column()
   isAuthorizedToPickup: boolean = true;
 

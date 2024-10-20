@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreateChildPickupGuardianDTO {
   @IsString()
@@ -24,4 +24,8 @@ export class CreateChildPickupGuardianDTO {
   @IsUUID()
   @IsNotEmpty()
   childId!: string;
+
+  @IsString()
+  @IsOptional()
+  hourToPickup?: string;
 }

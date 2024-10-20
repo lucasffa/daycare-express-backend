@@ -41,7 +41,7 @@ const upload = multer({ storage });
  *                 example: "2015-06-01"
  *               cpf:
  *                 type: string
- *                 example: "123.456.789-00"
+ *                 example: "129.965.410-06"
  *               address:
  *                 type: string
  *                 example: "Rua das Flores, 123, Centro"

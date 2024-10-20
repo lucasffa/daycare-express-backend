@@ -2,6 +2,7 @@ import { Repository } from "typeorm";
 import { ChildPickupGuardian } from "../entities/childPickupGuardian.entity";
 import { CreateChildPickupGuardianDTO } from "../dtos/create-childPickupGuardian.dto";
 import { isValidCpf } from "../utils/cpf.util";
+import { normalizeAndFormatCpf } from "../utils/normalizeAndFormatCpf.util";
 import { Child } from "../entities/child.entity";
 
 export class ChildPickupGuardianService {
@@ -20,7 +21,7 @@ export class ChildPickupGuardianService {
     data: CreateChildPickupGuardianDTO
   ): Promise<ChildPickupGuardian> {
     try {
-      const formattedCpf = this.normalizeAndFormatCpf(data.cpf);
+      const formattedCpf = normalizeAndFormatCpf(data.cpf);
       const child = await this.childRepository.findOne({
         where: { id: data.childId },
       });
@@ -86,8 +87,5 @@ export class ChildPickupGuardianService {
     }
   }
 
-  normalizeAndFormatCpf(cpf: string): string {
-    const normalizedCpf = cpf.replace(/[\.\-]/g, "");
-    return normalizedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-  }
+  
 }

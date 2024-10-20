@@ -10,8 +10,7 @@ import { Child } from "../entities/child.entity";
 
 const childPickupGuardianRoutes = Router();
 
-const childPickupGuardianRepository =
-  AppDataSource.getRepository(ChildPickupGuardian);
+const childPickupGuardianRepository = AppDataSource.getRepository(ChildPickupGuardian);
 const childRepository = AppDataSource.getRepository(Child);
 
 const childPickupGuardianService = new ChildPickupGuardianService(
@@ -56,11 +55,15 @@ const childPickupGuardianController = new ChildPickupGuardianController(
  *               email:
  *                 type: string
  *                 example: "joao.silva@example.com"
+ *               hourToPickup:
+ *                 type: string
+ *                 example: "17:00"
  *               parentalConsent:
  *                 type: string
  *                 example: "https://link-para-foto.com/autorizacao-pai-por-escrito.jpg"
  *               childId:
  *                 type: string
+ *                 example: "123e4567-e89b-12d3-a456-426614174000"
  *     responses:
  *       201:
  *         description: Responsável por buscar a criança criado com sucesso

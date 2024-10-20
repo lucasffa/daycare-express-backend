@@ -5,6 +5,7 @@ import { plainToInstance } from "class-transformer";
 import { isValidCpf } from "../utils/cpf.util";
 import { ChildResponseDTO } from "../dtos/child-response.dto";
 import { UserRole } from "../enums/roles.enum";
+import { normalizeAndFormatCpf } from "../utils/normalizeAndFormatCpf.util";
 
 export class ChildService {
   private childRepository: Repository<Child>;
@@ -14,7 +15,7 @@ export class ChildService {
   }
 
   async create(data: CreateChildDTO): Promise<ChildResponseDTO> {
-    const formattedCpf = this.normalizeAndFormatCpf(data.cpf);
+    const formattedCpf = normalizeAndFormatCpf(data.cpf);
 
     if (!isValidCpf(formattedCpf)) {
       return Promise.reject({ status: 400, message: "Invalid CPF" });
@@ -28,7 +29,10 @@ export class ChildService {
       return Promise.reject({ status: 400, message: "CPF already exists" });
     }
 
-    const child = this.childRepository.create(data);
+    const child = this.childRepository.create({
+      ...data,
+      cpf: formattedCpf, 
+    });
 
     return this.childRepository
       .save(child)
@@ -57,7 +61,7 @@ export class ChildService {
     }
 
     if (cpf) {
-      where.cpf = cpf
+      where.cpf = normalizeAndFormatCpf(cpf);
     }
 
     if (birthDate) {
@@ -76,10 +80,5 @@ export class ChildService {
     return children.length > 0
       ? plainToInstance(ChildResponseDTO, children)
       : null;
-  }
-
-  private normalizeAndFormatCpf(cpf: string): string {
-    const normalizedCpf = cpf.replace(/[\.\-]/g, "");
-    return normalizedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   }
 }
