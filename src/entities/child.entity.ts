@@ -6,41 +6,45 @@ import {
   OneToMany,
   BeforeInsert,
   BeforeUpdate,
-} from 'typeorm';
-import { ParentChild } from './parent-child.entity';
+} from "typeorm";
+import { ParentChild } from "./parent-child.entity";
+import { ChildPickupGuardian } from "./childPickupGuardian.entity";
 
 @Entity()
 export class Child {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id!: string;
 
   @Column({
-    collation: 'en_US.utf8'
+    collation: "en_US.utf8",
   })
-  fullName: string = '';
+  fullName: string = "";
 
   @Column()
   birthDate: Date = new Date();
 
   @Column({ unique: true })
-  cpf: string = '';
+  cpf: string = "";
 
   @Column({
-    collation: 'en_US.utf8'
+    collation: "en_US.utf8",
   })
-  address: string = '';
+  address: string = "";
 
   @Column()
-  medicalInfo: string = '';
+  medicalInfo: string = "";
 
   @Column({ nullable: true })
-  photo: string = '';
+  photo: string = "";
 
   @Column()
   imageUsePermission: boolean = false;
 
   @OneToMany(() => ParentChild, (parentChild) => parentChild.child)
   parentChildren!: ParentChild[];
+
+  @OneToMany(() => ChildPickupGuardian,(childPickupGuardians) => childPickupGuardians.child)
+  childPickupGuardians!: ChildPickupGuardian[];
 
   @BeforeInsert()
   @BeforeUpdate()

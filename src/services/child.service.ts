@@ -57,7 +57,7 @@ export class ChildService {
     }
 
     if (cpf) {
-      where.cpf = this.normalizeAndFormatCpf(cpf);
+      where.cpf = cpf
     }
 
     if (birthDate) {

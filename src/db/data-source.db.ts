@@ -6,6 +6,8 @@ import { ParentChild } from '../entities/parent-child.entity';
 import { Config } from '../configs/environment.config';
 import { User } from '../entities/user.entity';
 import { ServiceProvider } from '../entities/service-provider.entity';
+import { ChildPickupGuardian } from '../entities/childPickupGuardian.entity';
+import { Accountant } from '../entities/accountant.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -17,7 +19,7 @@ export const AppDataSource = new DataSource({
   schema: 'public',
   synchronize: Config.isDevelopment(),
   logging: true,
-  entities: [User, Parent, ParentChild, Child, ServiceProvider],
+  entities: [User, Parent, ParentChild, Child, ServiceProvider, ChildPickupGuardian, Accountant],
   migrations: [],
   subscribers: [],
 });
