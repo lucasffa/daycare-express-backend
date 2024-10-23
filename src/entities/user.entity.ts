@@ -42,12 +42,6 @@ export class User {
     @JoinColumn()
     serviceProvider?: ServiceProvider;
 
-    /*
-    @OneToOne(() => Accountant, { nullable: true })
-    @JoinColumn()
-    accountant?: Accountant;
-    */
-
     @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date = new Date();
 
